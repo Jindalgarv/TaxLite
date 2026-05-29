@@ -73,7 +73,7 @@ export default function Home() {
       )}
 
       {/* Footer Signature */}
-      <div style={{ position: "absolute", bottom: "1.5rem", left: "0", width: "100%", textAlign: "center", color: "var(--text-muted)", fontSize: "0.95rem", letterSpacing: "0.02em" }}>
+      <div style={{ marginTop: "3rem", width: "100%", textAlign: "center", color: "var(--text-muted)", fontSize: "0.95rem", letterSpacing: "0.02em" }}>
         {t.madeBy}
       </div>
     </div>
