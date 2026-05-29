@@ -36,7 +36,7 @@ body {
   font-family: var(--font-inter), -apple-system, sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  min-height: 100dvh;
   selection-background: var(--accent);
   selection-color: #fff;
 }
@@ -96,7 +96,7 @@ body {
 /* Layout utilities */
 .container {
   width: 100%;
-  min-height: calc(100vh - 65px); /* Minus navbar height approx */
+  min-height: calc(100dvh - 65px); /* Minus navbar height approx */
   padding: 2rem;
   display: flex;
   flex-direction: column;
