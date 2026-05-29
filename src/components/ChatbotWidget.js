@@ -2,9 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Send, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { calculateTax } from "../utils/taxCalculator";
+import { useLanguage } from "../context/LanguageContext";
+import { dict } from "../utils/dictionary";
 
-function buildSystemContext(formData) {
+function buildSystemContext(formData, languageInstruction) {
   const tax = calculateTax(formData);
   return `You are an expert Indian Income Tax assistant. The user has just completed their tax computation. Here is their complete data — use it to answer any question accurately with their exact numbers:
 
@@ -26,12 +29,15 @@ NEW REGIME: Deductions ₹${tax.new.deductions}, Taxable ₹${tax.new.taxableInc
 
 RECOMMENDATION: ${tax.recommendation.regime} — ${tax.recommendation.message}
 
-Answer clearly in simple language. If they ask "why", explain the math with their numbers. Be concise. Use ₹ for amounts.`;
+${languageInstruction}`;
 }
 
 export default function ChatbotWidget({ formData }) {
+  const { language } = useLanguage();
+  const t = dict[language];
+
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Have any questions about your results? Ask me anything — I can explain the math, suggest ways to save more, or guide you on next steps." }
+    { role: "assistant", content: t.aiContext ? "Have any questions about your results? Ask me anything!" : "Have any questions about your results? Ask me anything!" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +60,7 @@ export default function ChatbotWidget({ formData }) {
     setIsLoading(true);
 
     try {
-      const systemContext = buildSystemContext(formData);
+      const systemContext = buildSystemContext(formData, t.aiContext);
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,8 +99,8 @@ export default function ChatbotWidget({ formData }) {
                 <Sparkles size={14} />
               </div>
             )}
-            <div className="chat-bubble-content">
-              {msg.content}
+            <div className="chat-bubble-content markdown-body">
+              <ReactMarkdown>{msg.content}</ReactMarkdown>
             </div>
           </div>
         ))}

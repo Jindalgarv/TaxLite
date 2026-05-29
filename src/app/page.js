@@ -3,8 +3,13 @@
 import { useState } from "react";
 import ITRForm from "../components/ITRForm";
 import ChatbotWidget from "../components/ChatbotWidget";
+import { useLanguage } from "../context/LanguageContext";
+import { dict } from "../utils/dictionary";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
+  const { language } = useLanguage();
+  const t = dict[language];
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     personalInfo: {
@@ -29,12 +34,12 @@ export default function Home() {
     <div className="container">
       {currentStep === 0 && (
         <div className="animate-fade-in" style={{ textAlign: "center", width: "100%", maxWidth: "800px" }}>
-          <h1>File your taxes.<br/>Without the headache.</h1>
+          <h1>{t.heroTitle.split('. ').map((text, i, arr) => <span key={i}>{text}{i !== arr.length - 1 && '. '}<br/></span>)}</h1>
           <p style={{ fontSize: "1.25rem", margin: "1.5rem 0 3rem 0", maxWidth: "600px", marginLeft: "auto", marginRight: "auto", color: "var(--text-muted)" }}>
-            Answer simple questions in plain English. Our AI takes care of the complex tax mapping, deductions, and forms.
+            {t.heroSubtitle}
           </p>
-          <button className="btn btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.1rem" }} onClick={handleNext}>
-            Get Started
+          <button className="btn btn-primary" style={{ fontSize: "1.2rem", padding: "1.25rem 3rem" }} onClick={handleNext}>
+            {t.getStarted} <ArrowRight style={{ marginLeft: "0.5rem" }} />
           </button>
         </div>
       )}
@@ -69,7 +74,7 @@ export default function Home() {
 
       {/* Footer Signature */}
       <div style={{ position: "absolute", bottom: "1.5rem", left: "0", width: "100%", textAlign: "center", color: "var(--text-muted)", fontSize: "0.95rem", letterSpacing: "0.02em" }}>
-        Made with 🤍 by Garv
+        {t.madeBy}
       </div>
     </div>
   );

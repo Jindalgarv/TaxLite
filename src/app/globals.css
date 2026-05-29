@@ -57,9 +57,11 @@ body {
 }
 
 .navbar-content {
-  padding: 1.25rem 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .navbar-brand {
@@ -120,7 +122,26 @@ h2 { font-size: 2rem; color: var(--primary); }
 h3 { font-size: 1.5rem; }
 p { color: var(--text-muted); font-size: 1.1rem; }
 
-/* Form Elements */
+.lang-select {
+  width: auto;
+  background: var(--surface);
+  color: var(--text-color);
+  border: 1px solid var(--border);
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition);
+  appearance: auto;
+}
+
+.lang-select:hover {
+  border-color: var(--border-hover);
+}
+
+/* Base Elements */
 input, select, textarea {
   width: 100%;
   padding: 1.25rem 1.5rem;
@@ -468,7 +489,38 @@ label {
   border-radius: 12px;
   font-size: 0.95rem;
   line-height: 1.6;
-  white-space: pre-wrap;
+}
+
+/* Markdown specific styling inside chat */
+.markdown-body p {
+  margin-bottom: 0.75rem;
+  color: inherit;
+  font-size: inherit;
+}
+
+.markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+.markdown-body ul, .markdown-body ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+  font-size: 1.05rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: inherit;
 }
 
 .chat-bubble-user .chat-bubble-content {

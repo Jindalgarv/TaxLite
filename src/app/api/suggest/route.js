@@ -2,9 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { NextResponse } from 'next/server';
 
 const FALLBACK_MODELS = [
-  'gemini-3.5-flash',
-  'gemini-3.1-flash-lite',
-  'gemini-flash-latest',
+  'gemini-2.0-flash-lite-001',
   'gemini-flash-lite-latest',
   'gemini-2.5-flash',
   'gemini-2.0-flash'
