@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { calculateTax } from "../utils/taxCalculator";
 import { useLanguage } from "../context/LanguageContext";
@@ -85,8 +86,8 @@ export default function ChatbotWidget({ formData }) {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
-        <div className="chat-header-icon">
-          <Sparkles size={16} />
+        <div className="chat-header-icon" style={{ background: "transparent", padding: 0 }}>
+          <Image src="/logo.png" alt="AI Logo" width={24} height={24} />
         </div>
         <h3 style={{ margin: 0, fontSize: "1.1rem", color: "var(--text-color)" }}>Ask AI</h3>
       </div>
@@ -95,8 +96,8 @@ export default function ChatbotWidget({ formData }) {
         {messages.map((msg, idx) => (
           <div key={idx} className={`chat-bubble ${msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`}>
             {msg.role === "assistant" && (
-              <div className="chat-avatar">
-                <Sparkles size={14} />
+              <div className="chat-avatar" style={{ background: "transparent", padding: 0, border: "none", boxShadow: "none" }}>
+                <Image src="/logo.png" alt="AI Avatar" width={20} height={20} />
               </div>
             )}
             <div className="chat-bubble-content markdown-body">
@@ -106,8 +107,8 @@ export default function ChatbotWidget({ formData }) {
         ))}
         {isLoading && (
           <div className="chat-bubble chat-bubble-ai">
-            <div className="chat-avatar">
-              <Sparkles size={14} />
+            <div className="chat-avatar" style={{ background: "transparent", padding: 0, border: "none", boxShadow: "none" }}>
+              <Image src="/logo.png" alt="AI Avatar" width={20} height={20} />
             </div>
             <div className="chat-bubble-content" style={{ color: "var(--text-muted)" }}>
               Thinking...

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, ArrowRight, ArrowLeft, TrendingDown, TrendingUp, IndianRupee, Shield, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { Star, ArrowRight, ArrowLeft, TrendingDown, TrendingUp, IndianRupee, Shield, Trophy } from "lucide-react";
 import { calculateTax } from "../utils/taxCalculator";
 import { useLanguage } from "../context/LanguageContext";
 import { dict } from "../utils/dictionary";
@@ -81,9 +82,7 @@ export default function ITRForm({ currentStep, formData, setFormData, onNext, on
         <div className="animate-fade-in">
           {/* Recommendation Banner */}
           <div className="result-banner">
-            <div className="result-banner-icon">
-              <Sparkles size={28} />
-            </div>
+            <Star size={36} color="var(--accent)" strokeWidth={1.5} style={{ flexShrink: 0 }} />
             <div>
               <h2 style={{ marginBottom: "0.25rem" }}>
                 {taxData.recommendation.regime === 'New Tax Regime' ? t.newRegime : t.oldRegime} {t.wins}
