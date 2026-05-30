@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ITRForm from "../components/ITRForm";
 import ChatbotWidget from "../components/ChatbotWidget";
+import TaxAdvisor from "../components/TaxAdvisor";
 import { useLanguage } from "../context/LanguageContext";
 import { dict } from "../utils/dictionary";
 import { ArrowRight } from "lucide-react";
@@ -69,10 +70,13 @@ export default function Home() {
             onPrev={handlePrev}
           />
 
-          {/* Chat integrated below results on step 5 */}
+          {/* AI Tax Advisor + Chat on step 5 */}
           {currentStep === 5 && (
-            <div style={{ marginTop: "4rem", borderTop: "1px solid var(--border)", paddingTop: "3rem" }}>
-              <ChatbotWidget formData={formData} />
+            <div style={{ marginTop: "3rem" }}>
+              <TaxAdvisor formData={formData} />
+              <div style={{ marginTop: "2rem", borderTop: "1px solid var(--border)", paddingTop: "2.5rem" }}>
+                <ChatbotWidget formData={formData} />
+              </div>
             </div>
           )}
         </div>
