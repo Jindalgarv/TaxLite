@@ -9,7 +9,7 @@ export const dict = {
     step1Title: "Let's start with who you are.",
     step1Desc: "Just a quick detail so we can personalize your tax report.",
     fullNameLabel: "What is your full name?",
-    ageLabel: "How old are you? (This affects your tax exemption limit)",
+    ageLabel: "How old are you?",
 
     // Step 2
     step2Title: "How did you earn money this year?",
@@ -73,7 +73,7 @@ export const dict = {
     step1Title: "शुरुआत आपके परिचय से करते हैं।",
     step1Desc: "बस एक छोटी सी जानकारी ताकि हम आपकी टैक्स रिपोर्ट तैयार कर सकें।",
     fullNameLabel: "आपका पूरा नाम क्या है?",
-    ageLabel: "आपकी आयु कितनी है? (यह आपकी टैक्स छूट सीमा तय करता है)",
+    ageLabel: "आपकी उम्र कितनी है?",
     step2Title: "इस साल आपने पैसे कैसे कमाए?",
     step2Desc: "सभी स्रोतों से अपनी आय दर्ज करें। लागू न हो तो खाली छोड़ें।",
     salaryLabel: "टैक्स से पहले कुल वेतन (CTC / Gross Salary) (₹)",
@@ -129,7 +129,7 @@ export const dict = {
     step1Title: "Shuruwat aapke details se karte hain.",
     step1Desc: "Bas ek basic detail taaki hum aapki tax report ready kar sakein.",
     fullNameLabel: "Aapka poora naam kya hai?",
-    ageLabel: "Aapki umar kitni hai? (Yeh aapki tax exemption limit decide karta hai)",
+    ageLabel: "Aapki umar kitni hai?",
     step2Title: "Is saal aapne paise kaise kamaye?",
     step2Desc: "Sabhi sources se income daalo. Jo applicable nahi ho woh blank chhor do.",
     salaryLabel: "Tax se pehle total salary (CTC / Gross Salary) (₹)",

@@ -211,18 +211,6 @@ export default function ITRForm({ currentStep, formData, setFormData, onNext, on
               )}
             </div>
           </div>
-
-          {/* New Regime Note */}
-          <div className="result-section">
-            <div className="result-section-header">
-              <IndianRupee size={18} />
-              <h3 style={{ margin: 0 }}>{t.newRegime} — {t.deductionsAllowed}</h3>
-            </div>
-            <div className="result-row">
-              <span className="result-label">{t.stdDedNew}</span>
-              <span className="result-value" style={{ color: "var(--success)" }}>₹{formatINR(taxData.new.breakdown.standardDeduction)}</span>
-            </div>
-          </div>
         </div>
       )}
 
