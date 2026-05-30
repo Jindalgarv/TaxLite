@@ -13,17 +13,23 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     personalInfo: {
-      fullName: ""
+      fullName: "",
+      age: ""
     },
     income: {
       salary: "",
+      hra: "",
       business: "",
-      otherSources: ""
+      otherSources: "",
+      homeLoanInt: "",
+      professionalTax: ""
     },
     deductions: {
       lifeInsurance: "",
       healthInsurance: "",
-      providentFund: ""
+      healthParents: "",
+      nps: "",
+      donations: ""
     }
   });
 
@@ -45,9 +51,9 @@ export default function Home() {
       )}
 
       {currentStep > 0 && (
-        <div className="animate-fade-in" style={{ width: "100%", maxWidth: currentStep === 4 ? "1200px" : "600px", transition: "max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+        <div className="animate-fade-in" style={{ width: "100%", maxWidth: currentStep === 5 ? "1200px" : "600px", transition: "max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1)" }}>
           <div className="step-indicator">
-            {[1, 2, 3, 4].map(step => (
+            {[1, 2, 3, 4, 5].map(step => (
               <div 
                 key={step} 
                 className={`step-dot ${currentStep === step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}
@@ -63,8 +69,8 @@ export default function Home() {
             onPrev={handlePrev}
           />
 
-          {/* Chat integrated below results on step 4 */}
-          {currentStep === 4 && (
+          {/* Chat integrated below results on step 5 */}
+          {currentStep === 5 && (
             <div style={{ marginTop: "4rem", borderTop: "1px solid var(--border)", paddingTop: "3rem" }}>
               <ChatbotWidget formData={formData} />
             </div>
