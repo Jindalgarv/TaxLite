@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import ITRForm from "../components/ITRForm";
-import ChatbotWidget from "../components/ChatbotWidget";
 import TaxAdvisor from "../components/TaxAdvisor";
 import { useLanguage } from "../context/LanguageContext";
 import { dict } from "../utils/dictionary";
@@ -70,13 +69,9 @@ export default function Home() {
             onPrev={handlePrev}
           />
 
-          {/* AI Tax Advisor + Chat on step 5 */}
           {currentStep === 5 && (
-            <div style={{ marginTop: "3rem" }}>
+            <div style={{ marginTop: "2rem" }}>
               <TaxAdvisor formData={formData} />
-              <div style={{ marginTop: "2rem", borderTop: "1px solid var(--border)", paddingTop: "2.5rem" }}>
-                <ChatbotWidget formData={formData} />
-              </div>
             </div>
           )}
         </div>

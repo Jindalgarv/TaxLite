@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
-import { Lightbulb, RefreshCw } from "lucide-react";
+import { Lightbulb, RefreshCw, Send } from "lucide-react";
 import { calculateTax } from "../utils/taxCalculator";
 import { useLanguage } from "../context/LanguageContext";
 import { dict } from "../utils/dictionary";
@@ -21,99 +22,89 @@ function buildAnalysisPrompt(formData, taxData, languageInstruction) {
   const donations   = parseFloat(formData.deductions?.donations) || 0;
   const age         = parseInt(formData.personalInfo?.age)      || 30;
 
-  return `You are a senior Indian Chartered Accountant and tax advisor with 20+ years of experience. 
-A user has just computed their income tax. Analyze their financial data deeply and give them HIGHLY SPECIFIC, ACTIONABLE tax-saving recommendations for FY 2024-25.
+  return `You are a senior Indian CA. Be extremely concise — use short bullet points only, NO long paragraphs.
 
---- USER'S FINANCIAL PROFILE ---
-Name: ${formData.personalInfo?.fullName || "User"}
-Age: ${age} years
+USER DATA (FY 2024-25):
+- Age: ${age} | Salary: ₹${salary.toLocaleString('en-IN')} | HRA: ₹${hra.toLocaleString('en-IN')} | Business: ₹${business.toLocaleString('en-IN')} | Other: ₹${other.toLocaleString('en-IN')}
+- Home Loan Interest: ₹${homeLoanInt.toLocaleString('en-IN')} | Prof. Tax: ₹${profTax.toLocaleString('en-IN')}
+- 80C: ₹${sec80C.toLocaleString('en-IN')}/₹1,50,000 | 80D Self: ₹${sec80DSelf.toLocaleString('en-IN')} | 80D Parents: ₹${sec80DPar.toLocaleString('en-IN')} | NPS: ₹${nps.toLocaleString('en-IN')}/₹50,000 | 80G: ₹${donations.toLocaleString('en-IN')}
+- Old Regime Tax: ₹${Math.round(taxData.old.finalTax).toLocaleString('en-IN')} | New Regime Tax: ₹${Math.round(taxData.new.finalTax).toLocaleString('en-IN')}
+- Recommended: ${taxData.recommendation.regime} (saves ₹${Math.round(taxData.recommendation.savings).toLocaleString('en-IN')})
 
-INCOME SOURCES:
-- Gross Salary (before deductions): ₹${salary.toLocaleString('en-IN')}
-- HRA received from employer: ₹${hra.toLocaleString('en-IN')}
-- Business / Freelance income: ₹${business.toLocaleString('en-IN')}
-- Other income (interest, dividends, etc.): ₹${other.toLocaleString('en-IN')}
-- Home loan interest paid: ₹${homeLoanInt.toLocaleString('en-IN')}
-- Professional tax paid: ₹${profTax.toLocaleString('en-IN')}
-- Gross Total Income: ₹${taxData.grossIncome.toLocaleString('en-IN')}
+Give a SHORT advisory using EXACTLY this format. Each section max 3 bullet points. Be specific with rupee amounts.
 
-CURRENT DEDUCTIONS BEING CLAIMED (Old Regime):
-- Section 80C investments: ₹${sec80C.toLocaleString('en-IN')} (Limit: ₹1,50,000)
-- 80D Health Insurance (Self): ₹${sec80DSelf.toLocaleString('en-IN')} (Limit: ₹25,000 or ₹50,000 if senior)
-- 80D Health Insurance (Parents): ₹${sec80DPar.toLocaleString('en-IN')} (Limit: ₹50,000)
-- NPS 80CCD(1B): ₹${nps.toLocaleString('en-IN')} (Limit: ₹50,000)
-- Donations 80G: ₹${donations.toLocaleString('en-IN')}
+## ✅ Verdict
+One line summary of their situation and best choice.
 
-TAX COMPUTATION:
-- Old Regime: Total deductions ₹${taxData.old.deductions.toLocaleString('en-IN')}, Taxable income ₹${taxData.old.taxableIncome.toLocaleString('en-IN')}, Final Tax ₹${Math.round(taxData.old.finalTax).toLocaleString('en-IN')}
-- New Regime: Total deductions ₹${taxData.new.deductions.toLocaleString('en-IN')}, Taxable income ₹${taxData.new.taxableIncome.toLocaleString('en-IN')}, Final Tax ₹${Math.round(taxData.new.finalTax).toLocaleString('en-IN')}
-- RECOMMENDED: ${taxData.recommendation.regime} (saves ₹${Math.round(taxData.recommendation.savings).toLocaleString('en-IN')})
+## 💰 Missed Deductions
+Only list deductions they haven't fully used with exact gap amount and potential tax saving.
 
---- YOUR TASK ---
-Give a structured, deeply personalized tax advisory report. Be SPECIFIC with exact rupee amounts wherever possible. Focus only on what's RELEVANT to this user's profile — skip generic advice that doesn't apply to them.
+## 🔄 Key Recommendations
+Top 3 actions they should take THIS year, ordered by impact. Specific rupee amounts only.
 
-Structure your response EXACTLY like this:
+## ⚠️ Watch Out
+1-2 risks or commonly missed things specific to their profile.
 
-## 🔍 Quick Assessment
-In 2-3 lines, summarize their current tax situation and the biggest opportunity you see.
+Total response must be under 300 words. No intro, no conclusion, no fluff.
+${languageInstruction}`;
+}
 
-## 💰 Untapped Deductions
-List ONLY the deductions they haven't fully utilized. Show exact gap (e.g., "You've used ₹X of ₹1,50,000 limit — investing ₹Y more in ELSS/PPF would save you ₹Z in tax").
+function buildFollowUpContext(formData, taxData, languageInstruction) {
+  const salary  = parseFloat(formData.income?.salary) || 0;
+  const business = parseFloat(formData.income?.business) || 0;
+  const age     = parseInt(formData.personalInfo?.age) || 30;
+  return `You are an expert Indian CA chatbot. The user is asking a follow-up question about their tax analysis.
 
-## 🔄 Income Restructuring Tips
-Based on their income mix (salary vs business vs other), suggest 2-3 specific restructuring ideas. For example:
-- If they have business income, suggest specific expenses they can legitimately deduct
-- If they have capital gains, suggest tax-loss harvesting or LTCG optimization
-- If HRA is 0 but they pay rent, flag the missed exemption
+Their profile: Age ${age}, Salary ₹${salary.toLocaleString('en-IN')}, Business ₹${business.toLocaleString('en-IN')}, Gross Income ₹${taxData.grossIncome.toLocaleString('en-IN')}.
+Old Regime Tax: ₹${Math.round(taxData.old.finalTax).toLocaleString('en-IN')} | New Regime Tax: ₹${Math.round(taxData.new.finalTax).toLocaleString('en-IN')} | Recommended: ${taxData.recommendation.regime}.
 
-## 📈 Investment Recommendations
-Suggest specific financial products that will both save tax AND build wealth. Be precise about amounts.
-
-## ⚠️ Regime Strategy
-Explain in concrete numbers WHY the recommended regime is better for THEM specifically. If the gap is small, mention at what income/deduction level the other regime becomes better.
-
-## 🎯 Action Plan
-Give a numbered, prioritized to-do list of the top 5 things they should do THIS financial year, ordered by tax impact.
-
----
-${languageInstruction}
-Be conversational but expert. No fluff. Every point must be backed by actual numbers from their data.`;
+Answer concisely. Use ₹ for amounts. Be direct and specific to their numbers.
+${languageInstruction}`;
 }
 
 export default function TaxAdvisor({ formData }) {
   const { language } = useLanguage();
   const t = dict[language];
+  const taxData = calculateTax(formData);
+
+  // Analysis state
   const [analysis, setAnalysis] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(true);
+  const [analysisError, setAnalysisError] = useState(null);
+
+  // Chat state
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => { scrollToBottom(); }, [messages, isChatLoading]);
 
   const runAnalysis = async () => {
-    setIsLoading(true);
-    setError(null);
+    setIsAnalyzing(true);
+    setAnalysisError(null);
     setAnalysis("");
+    setMessages([]);
 
     try {
-      const taxData = calculateTax(formData);
       const prompt = buildAnalysisPrompt(formData, taxData, t.aiContext);
-
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [{ role: "user", content: "Please analyze my tax situation and give me your expert recommendations." }],
+          messages: [{ role: "user", content: "Analyze my tax." }],
           systemContext: prompt,
           stream: true
         })
       });
 
       if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error(errBody?.reply || `HTTP ${response.status}`);
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err?.reply || `HTTP ${response.status}`);
       }
 
       const contentType = response.headers.get('content-type') || '';
-
-      // Streaming path
       if (contentType.includes('text/plain') && response.body) {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -124,20 +115,42 @@ export default function TaxAdvisor({ formData }) {
           if (chunk) setAnalysis(prev => prev + chunk);
         }
       } else {
-        // Fallback: non-streaming JSON
         const data = await response.json();
         setAnalysis(data.reply || '');
       }
     } catch (err) {
-      setError("Could not generate analysis. Please try again.");
+      setAnalysisError("Could not generate analysis. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsAnalyzing(false);
     }
   };
 
-  useEffect(() => {
-    runAnalysis();
-  }, []);
+  useEffect(() => { runAnalysis(); }, []);
+
+  const sendMessage = async () => {
+    const text = input.trim();
+    if (!text || isChatLoading) return;
+    setInput("");
+
+    const newMessages = [...messages, { role: "user", content: text }];
+    setMessages(newMessages);
+    setIsChatLoading(true);
+
+    try {
+      const systemContext = buildFollowUpContext(formData, taxData, t.aiContext);
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, systemContext })
+      });
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: "assistant", content: data.reply || "Sorry, I couldn't process that." }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
 
   return (
     <div className="advisor-card">
@@ -145,45 +158,97 @@ export default function TaxAdvisor({ formData }) {
       <div className="advisor-header">
         <div className="advisor-header-left">
           <div className="advisor-icon">
-            <Lightbulb size={20} />
+            <Lightbulb size={18} />
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: "1.15rem" }}>AI Tax Advisor</h3>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
-              Personalized analysis based on your profile
+            <h3 style={{ margin: 0, fontSize: "1.1rem" }}>AI Tax Advisor</h3>
+            <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--text-muted)" }}>
+              Analysis + ask follow-up questions below
             </p>
           </div>
         </div>
-        {!isLoading && (
-          <button className="btn btn-secondary" onClick={runAnalysis} style={{ padding: "0.5rem 0.875rem", fontSize: "0.85rem", gap: "0.4rem" }}>
-            <RefreshCw size={14} /> Re-analyze
+        {!isAnalyzing && (
+          <button className="btn btn-secondary" onClick={runAnalysis} style={{ padding: "0.45rem 0.875rem", fontSize: "0.82rem", gap: "0.35rem" }}>
+            <RefreshCw size={13} /> Re-analyze
           </button>
         )}
       </div>
 
-      {/* Content */}
+      {/* Analysis Body */}
       <div className="advisor-body">
-        {isLoading && !analysis && (
+        {isAnalyzing && !analysis && (
           <div className="advisor-loading">
-            <div className="advisor-dots">
-              <span /><span /><span />
-            </div>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", margin: 0 }}>
-              Analyzing your income, deductions, and finding savings...
+            <div className="advisor-dots"><span /><span /><span /></div>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: 0 }}>
+              Analyzing your tax profile...
             </p>
           </div>
         )}
-
-        {error && (
-          <p style={{ color: "var(--error)", fontSize: "0.95rem" }}>{error}</p>
-        )}
-
+        {analysisError && <p style={{ color: "var(--error)", fontSize: "0.9rem" }}>{analysisError}</p>}
         {analysis && (
           <div className="advisor-markdown markdown-body">
             <ReactMarkdown>{analysis}</ReactMarkdown>
           </div>
         )}
       </div>
+
+      {/* Divider */}
+      {!isAnalyzing && analysis && (
+        <>
+          <div style={{ borderTop: "1px solid var(--border)", padding: "1rem 1.5rem 0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <Image src="/logo.png" alt="AI" width={18} height={18} />
+            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>Ask a follow-up question</span>
+          </div>
+
+          {/* Chat Messages */}
+          {messages.length > 0 && (
+            <div className="chat-messages-inline" style={{ padding: "0 1.5rem", maxHeight: "320px" }}>
+              {messages.map((msg, idx) => (
+                <div key={idx} className={`chat-bubble ${msg.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}`}>
+                  {msg.role === "assistant" && (
+                    <div className="chat-avatar" style={{ background: "transparent", border: "none", padding: 0 }}>
+                      <Image src="/logo.png" alt="AI" width={20} height={20} />
+                    </div>
+                  )}
+                  <div className="chat-bubble-content markdown-body">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                </div>
+              ))}
+              {isChatLoading && (
+                <div className="chat-bubble chat-bubble-ai">
+                  <div className="chat-avatar" style={{ background: "transparent", border: "none", padding: 0 }}>
+                    <Image src="/logo.png" alt="AI" width={20} height={20} />
+                  </div>
+                  <div className="chat-bubble-content" style={{ color: "var(--text-muted)" }}>Thinking...</div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+
+          {/* Chat Input */}
+          <div style={{ padding: "0.75rem 1.5rem 1.25rem" }}>
+            <div className="chat-input-inline">
+              <input
+                className="chat-input"
+                type="text"
+                placeholder="e.g. Why is New Regime better for me?"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+              />
+              <button
+                className={`chat-send-btn ${input.trim() ? 'chat-send-btn-active' : ''}`}
+                onClick={sendMessage}
+                disabled={!input.trim() || isChatLoading}
+              >
+                <Send size={16} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
