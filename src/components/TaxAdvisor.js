@@ -106,16 +106,27 @@ export default function TaxAdvisor({ formData }) {
         })
       });
 
-      if (!response.ok) throw new Error("Analysis failed");
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody?.reply || `HTTP ${response.status}`);
+      }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
+      const contentType = response.headers.get('content-type') || '';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        setAnalysis(prev => prev + chunk);
+      // Streaming path
+      if (contentType.includes('text/plain') && response.body) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          if (chunk) setAnalysis(prev => prev + chunk);
+        }
+      } else {
+        // Fallback: non-streaming JSON
+        const data = await response.json();
+        setAnalysis(data.reply || '');
       }
     } catch (err) {
       setError("Could not generate analysis. Please try again.");

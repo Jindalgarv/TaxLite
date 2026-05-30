@@ -34,7 +34,7 @@ export async function POST(req) {
 
         // ── STREAMING mode ──────────────────────────────────────────────
         if (wantStream) {
-          const streamResponse = await ai.models.generateContentStream({
+          const result = await ai.models.generateContentStream({
             model: modelName,
             contents,
             config: { systemInstruction }
@@ -44,11 +44,20 @@ export async function POST(req) {
           const readable = new ReadableStream({
             async start(controller) {
               try {
-                for await (const chunk of streamResponse) {
-                  const text = chunk.text?.() ?? chunk.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+                for await (const chunk of result) {
+                  // In @google/genai v2+, chunk.text is a string property
+                  let text = '';
+                  if (typeof chunk.text === 'string') {
+                    text = chunk.text;
+                  } else if (typeof chunk.text === 'function') {
+                    text = chunk.text();
+                  } else {
+                    text = chunk.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+                  }
                   if (text) controller.enqueue(encoder.encode(text));
                 }
               } catch (e) {
+                console.error('[Stream] Error reading chunk:', e);
                 controller.error(e);
               } finally {
                 controller.close();
@@ -59,8 +68,8 @@ export async function POST(req) {
           return new Response(readable, {
             headers: {
               'Content-Type': 'text/plain; charset=utf-8',
-              'Transfer-Encoding': 'chunked',
               'Cache-Control': 'no-cache',
+              'X-Accel-Buffering': 'no',
             }
           });
         }
@@ -72,8 +81,12 @@ export async function POST(req) {
           config: { systemInstruction }
         });
 
+        const replyText = typeof response.text === 'function'
+          ? response.text()
+          : (response.text ?? response.candidates?.[0]?.content?.parts?.[0]?.text ?? '');
+
         console.log(`[Chat API] OK with ${modelName}`);
-        return NextResponse.json({ reply: response.text });
+        return NextResponse.json({ reply: replyText });
 
       } catch (err) {
         console.warn(`[Chat API] Failed with ${modelName}:`, err.message || err);
