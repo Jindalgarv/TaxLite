@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TaxLite
 
-## Getting Started
+**An AI assistant that walks you through your Indian income tax return in plain language, and tells you which tax regime saves you more.**
 
-First, run the development server:
+Filing an ITR means knowing what 80C, 80D, HRA and Section 24B mean before you can even start. TaxLite turns it into a short guided conversation: answer a few simple questions, see your tax under both regimes side by side, then get a personalised advisory from Gemini that you can ask follow-up questions about.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React_19-20232A?logo=react&logoColor=61DAFB)
+![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?logo=googlegemini&logoColor=white)
+
+## Features
+
+- **Guided 4-step flow**: personal details → income (salary, HRA, business, other sources) → core deductions (80C, 80D for self and parents, NPS) → extra deductions (home loan interest, professional tax, donations).
+- **Old vs new regime comparison**: computes tax under both regimes, including standard deduction, deduction caps, senior-citizen exemption limits, the Section 87A rebate with marginal relief, and 4% cess, then recommends the cheaper one and shows the saving.
+- **Streaming AI advisory**: sends the computed numbers to Gemini as context and streams back a short verdict, the deductions you haven't fully used (with the rupee gap), and ways to restructure income. You can keep chatting with it afterwards.
+- **Model fallback**: the API routes try a list of Gemini models in order, so a quota or availability error on one model falls through to the next instead of failing the request.
+- **English, Hindi and Hinglish**: the whole UI is translated, and the AI is instructed to answer in the selected language (Hindi in Devanagari script).
+- **Responsive UI** that works on phones as well as desktop.
+
+## How it works
+
+```
+ITRForm (4 steps) ──► taxCalculator.js ──► old vs new regime result
+                                                │
+                                                ▼
+                       TaxAdvisor ──► /api/chat (streaming) ──► Gemini
+                                         └─ falls back through models on error
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Path | What it does |
+|---|---|
+| `src/utils/taxCalculator.js` | Pure function: form data in, both regimes' tax breakdowns and a recommendation out |
+| `src/app/api/chat/route.js` | Streaming chat endpoint with Gemini model fallback |
+| `src/app/api/suggest/route.js` | One-line encouragement for each step of the form |
+| `src/components/TaxAdvisor.js` | Builds the advisory prompt from the computed numbers and renders the streamed Markdown |
+| `src/context/LanguageContext.js`, `src/utils/dictionary.js` | i18n for English, Hindi and Hinglish |
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Run locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone https://github.com/Jindalgarv/TaxLite.git
+cd TaxLite
+npm install
+echo 'GEMINI_API_KEY=your-key-here' > .env.local
+npm run dev
+```
 
-## Learn More
+Open http://localhost:3000. Get a Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey).
 
-To learn more about Next.js, take a look at the following resources:
+## Disclaimer
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+TaxLite gives estimates to help you understand your options. It is not a substitute for a chartered accountant, and you should check the figures before filing.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built by [Garv Jindal](https://github.com/Jindalgarv).
