@@ -65,23 +65,23 @@ export function calculateTax(formData) {
   const finalTaxOld = taxOld + cessOld;
 
   // -------------------------
-  // NEW REGIME (FY 2024-25)
+  // NEW REGIME (FY 2025-26)
   // Standard deduction: ₹75,000 for salaried
   // -------------------------
   const standardDeductionNew = salary > 0 ? 75000 : 0;
   const totalDeductionsNew   = standardDeductionNew;
   let taxableIncomeNew        = Math.max(0, grossIncome - totalDeductionsNew);
 
-  // New regime slabs (Budget 2024)
+  // New regime slabs (Budget 2025): ₹4L bands, so each full band adds ₹4L × its rate
   let taxNew = 0;
   if (taxableIncomeNew > 2400000) {
-    taxNew = (taxableIncomeNew - 2400000) * 0.30 + 330000 + 60000 + 45000 + 30000 + 20000;
+    taxNew = (taxableIncomeNew - 2400000) * 0.30 + 100000 + 80000 + 60000 + 40000 + 20000;
   } else if (taxableIncomeNew > 2000000) {
-    taxNew = (taxableIncomeNew - 2000000) * 0.25 + 60000 + 45000 + 30000 + 20000;
+    taxNew = (taxableIncomeNew - 2000000) * 0.25 + 80000 + 60000 + 40000 + 20000;
   } else if (taxableIncomeNew > 1600000) {
-    taxNew = (taxableIncomeNew - 1600000) * 0.20 + 45000 + 30000 + 20000;
+    taxNew = (taxableIncomeNew - 1600000) * 0.20 + 60000 + 40000 + 20000;
   } else if (taxableIncomeNew > 1200000) {
-    taxNew = (taxableIncomeNew - 1200000) * 0.15 + 30000 + 20000;
+    taxNew = (taxableIncomeNew - 1200000) * 0.15 + 40000 + 20000;
   } else if (taxableIncomeNew > 800000) {
     taxNew = (taxableIncomeNew - 800000) * 0.10 + 20000;
   } else if (taxableIncomeNew > 400000) {
